@@ -8,12 +8,33 @@ import {
   Button,
   MenuItem,
   Grid,
+  IconButton,
+  Typography,
+  useTheme,
+  styled,
 } from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { patientAPI } from "../services/api";
 import { type PatientFormValues, type Patient } from "../types/patient";
 
 const bloodTypes = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
+
+const StyledTextField = styled(TextField)(({ theme }) => ({
+  "& .MuiOutlinedInput-root": {
+    borderRadius: theme.shape.borderRadius,
+    "& fieldset": {
+      borderColor: theme.palette.primary.light,
+    },
+    "&:hover fieldset": {
+      borderColor: theme.palette.primary.main,
+    },
+    "&.Mui-focused fieldset": {
+      borderColor: theme.palette.secondary.main,
+      borderWidth: 2,
+    },
+  },
+}));
 
 export default function PatientModal({
   open,
@@ -24,6 +45,7 @@ export default function PatientModal({
   patient?: Patient;
   onClose: () => void;
 }) {
+  const theme = useTheme();
   const queryClient = useQueryClient();
   const [formValues, setFormValues] = useState<PatientFormValues>({
     first_name: "",
@@ -50,6 +72,18 @@ export default function PatientModal({
         medical_history: patient.medical_history,
         allergies: patient.allergies,
       });
+    } else {
+      setFormValues({
+        first_name: "",
+        last_name: "",
+        date_of_birth: "",
+        gender: "male",
+        weight: undefined,
+        height: undefined,
+        blood_type: undefined,
+        medical_history: "",
+        allergies: "",
+      });
     }
   }, [patient]);
 
@@ -63,19 +97,56 @@ export default function PatientModal({
     },
   });
 
+  const deleteMutation = useMutation({
+    mutationFn: () => patientAPI.delete(patient?.id || ""),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["patients"] });
+      onClose();
+    },
+  });
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     mutation.mutate(formValues);
   };
 
+  const handleDelete = () => {
+    if (patient?.id) {
+      deleteMutation.mutate();
+    }
+  };
+
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
-      <DialogTitle>{patient ? "Edit Patient" : "New Patient"}</DialogTitle>
+      <DialogTitle
+        sx={{
+          bgcolor: "primary.main",
+          color: "primary.contrastText",
+          position: "relative",
+          py: 2,
+          pr: 6,
+        }}
+      >
+        {patient ? "Edit Patient" : "New Patient"}
+        <IconButton
+          onClick={onClose}
+          sx={{
+            position: "absolute",
+            right: theme.spacing(2),
+            top: theme.spacing(2),
+            color: "primary.contrastText",
+          }}
+        >
+          <CloseIcon />
+        </IconButton>
+      </DialogTitle>
+
       <form onSubmit={handleSubmit}>
-        <DialogContent dividers>
-          <Grid container spacing={3}>
-            <Grid item xs={12} sm={6}>
-              <TextField
+        <DialogContent dividers sx={{ p: 3 }}>
+          <Grid container spacing={2}>
+            {/* Name Row */}
+            <Grid size={{ xs: 12, md: 6 }}>
+              <StyledTextField
                 fullWidth
                 label="First Name"
                 value={formValues.first_name}
@@ -85,8 +156,8 @@ export default function PatientModal({
                 required
               />
             </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
+            <Grid size={{ xs: 12, md: 6 }}>
+              <StyledTextField
                 fullWidth
                 label="Last Name"
                 value={formValues.last_name}
@@ -96,8 +167,54 @@ export default function PatientModal({
                 required
               />
             </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
+
+            {/* Physical Attributes Row */}
+            <Grid size={{ xs: 12, md: 6 }}>
+              <StyledTextField
+                fullWidth
+                type="number"
+                label="Height (cm)"
+                value={formValues.height || ""}
+                onChange={(e) =>
+                  setFormValues({
+                    ...formValues,
+                    height: Number(e.target.value),
+                  })
+                }
+                InputProps={{
+                  endAdornment: (
+                    <Typography variant="body2" color="text.secondary">
+                      cm
+                    </Typography>
+                  ),
+                }}
+              />
+            </Grid>
+            <Grid size={{ xs: 12, md: 6 }}>
+              <StyledTextField
+                fullWidth
+                type="number"
+                label="Weight (kg)"
+                value={formValues.weight || ""}
+                onChange={(e) =>
+                  setFormValues({
+                    ...formValues,
+                    weight: Number(e.target.value),
+                  })
+                }
+                InputProps={{
+                  endAdornment: (
+                    <Typography variant="body2" color="text.secondary">
+                      kg
+                    </Typography>
+                  ),
+                }}
+              />
+            </Grid>
+
+            {/* Personal Details Row */}
+            <Grid size={{ xs: 12, md: 4 }}>
+              <StyledTextField
                 fullWidth
                 type="date"
                 label="Date of Birth"
@@ -112,8 +229,8 @@ export default function PatientModal({
                 required
               />
             </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
+            <Grid size={{ xs: 12, md: 4 }}>
+              <StyledTextField
                 select
                 fullWidth
                 label="Gender"
@@ -128,38 +245,10 @@ export default function PatientModal({
                 <MenuItem value="male">Male</MenuItem>
                 <MenuItem value="female">Female</MenuItem>
                 <MenuItem value="other">Other</MenuItem>
-              </TextField>
+              </StyledTextField>
             </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                type="number"
-                label="Weight (kg)"
-                value={formValues.weight || ""}
-                onChange={(e) =>
-                  setFormValues({
-                    ...formValues,
-                    weight: Number(e.target.value),
-                  })
-                }
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                type="number"
-                label="Height (cm)"
-                value={formValues.height || ""}
-                onChange={(e) =>
-                  setFormValues({
-                    ...formValues,
-                    height: Number(e.target.value),
-                  })
-                }
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
+            <Grid size={{ xs: 12, md: 4 }}>
+              <StyledTextField
                 select
                 fullWidth
                 label="Blood Type"
@@ -167,7 +256,7 @@ export default function PatientModal({
                 onChange={(e) =>
                   setFormValues({
                     ...formValues,
-                    blood_type: e.target.value as any,
+                    blood_type: e.target.value as string,
                   })
                 }
               >
@@ -176,13 +265,15 @@ export default function PatientModal({
                     {type}
                   </MenuItem>
                 ))}
-              </TextField>
+              </StyledTextField>
             </Grid>
-            <Grid item xs={12}>
-              <TextField
+
+            {/* Medical Information */}
+            <Grid size={6}>
+              <StyledTextField
                 fullWidth
                 multiline
-                rows={3}
+                minRows={4}
                 label="Medical History"
                 value={formValues.medical_history}
                 onChange={(e) =>
@@ -193,11 +284,13 @@ export default function PatientModal({
                 }
               />
             </Grid>
-            <Grid item xs={12}>
-              <TextField
+
+            {/* Allergies */}
+            <Grid size={6}>
+              <StyledTextField
                 fullWidth
                 multiline
-                rows={2}
+                minRows={3}
                 label="Allergies"
                 value={formValues.allergies}
                 onChange={(e) =>
@@ -207,14 +300,33 @@ export default function PatientModal({
             </Grid>
           </Grid>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={onClose}>Cancel</Button>
+
+        <DialogActions
+          sx={{
+            px: 3,
+            py: 2,
+            borderTop: `1px solid ${theme.palette.divider}`,
+          }}
+        >
+          {patient && (
+            <Button
+              onClick={handleDelete}
+              color="error"
+              variant="outlined"
+              disabled={deleteMutation.isLoading}
+            >
+              Delete Patient
+            </Button>
+          )}
+
           <Button
             type="submit"
             variant="contained"
-            disabled={mutation.isLoading}
+            color="primary"
+            disabled={mutation.isLoading || deleteMutation.isLoading}
+            sx={{ px: 4, fontWeight: 600 }}
           >
-            {patient ? "Update Patient" : "Create Patient"}
+            {patient ? "Save Changes" : "Create Patient"}
           </Button>
         </DialogActions>
       </form>

@@ -49,11 +49,26 @@ export default function HomePage() {
 
   return (
     <>
-      <Typography variant="h3" gutterBottom>
+      <Typography
+        variant="h3"
+        gutterBottom
+        color="primary"
+        sx={{
+          fontWeight: 700,
+          [theme.breakpoints.down("md")]: { fontSize: "2rem" },
+          [theme.breakpoints.down("sm")]: { fontSize: "1.5rem" },
+        }}
+      >
         Patient Records System
       </Typography>
-
-      <Box sx={{ mb: 4, display: "flex", gap: 2 }}>
+      <Box
+        sx={{
+          mb: 4,
+          display: "flex",
+          gap: 2,
+          flexDirection: { xs: "column", sm: "row" },
+        }}
+      >
         <TextField
           fullWidth
           variant="outlined"
@@ -63,10 +78,26 @@ export default function HomePage() {
             setSearchTerm(e.target.value);
             setPage(1);
           }}
+          sx={{
+            "& .MuiOutlinedInput-root": {
+              borderRadius: theme.shape.borderRadius,
+              "& fieldset": {
+                borderColor: theme.palette.primary.light,
+              },
+              "&:hover fieldset": {
+                borderColor: theme.palette.primary.main,
+              },
+              "&.Mui-focused fieldset": {
+                borderColor: theme.palette.secondary.main,
+                borderWidth: 2,
+              },
+            },
+          }}
         />
 
         <Button
           variant="contained"
+          color={isAuthenticated ? "secondary" : "primary"}
           onClick={() => {
             if (isAuthenticated) {
               setSelectedPatient(null);
@@ -75,18 +106,29 @@ export default function HomePage() {
               setAuthModalOpen(true);
             }
           }}
+          sx={{
+            flexShrink: 0,
+            fontWeight: 600,
+            py: 1.5,
+            whiteSpace: "nowrap",
+          }}
         >
           {isAuthenticated ? "Add Patient" : "Login to Add Patients"}
         </Button>
       </Box>
-
-      <Typography variant="subtitle1" sx={{ mb: 2 }}>
+      <Typography
+        variant="subtitle1"
+        sx={{
+          mb: 2,
+          color: "text.secondary",
+          fontStyle: "italic",
+        }}
+      >
         Showing {patientsData.data.length} of {patientsData.total} patients
       </Typography>
-
-      <TransitionGroup component={Grid} container spacing={3}>
+      <TransitionGroup container spacing={2} component={Grid}>
         {patientsData.data.map((patient: Patient) => {
-          const nodeRef = createRef(); // Changed to createRef()
+          const nodeRef = createRef();
           return (
             <CSSTransition
               key={patient.id}
@@ -95,23 +137,33 @@ export default function HomePage() {
               classNames="card"
               unmountOnExit
             >
-              <div ref={nodeRef}>
-                <Grid item xs={12} sm={6} md={4}>
-                  <PatientCard
-                    patient={patient}
-                    onClick={() => {
-                      setSelectedPatient(patient);
-                      setModalOpen(true);
-                    }}
-                  />
-                </Grid>
-              </div>
+              <Grid
+                // ref={nodeRef}
+                size={{ xs: 12, sm: 6, lg: 4, xl: 3 }}
+                sx={{ display: "flex" }}
+              >
+                <PatientCard
+                  patient={patient}
+                  onClick={() => {
+                    setSelectedPatient(patient);
+                    setModalOpen(true);
+                  }}
+                />
+              </Grid>
             </CSSTransition>
           );
         })}
       </TransitionGroup>
-
-      <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          mt: 4,
+          py: 3,
+          bgcolor: "background.paper",
+          borderRadius: theme.shape.borderRadius,
+        }}
+      >
         <Pagination
           count={patientsData.lastPage}
           page={page}
@@ -119,15 +171,18 @@ export default function HomePage() {
           color="primary"
           showFirstButton
           showLastButton
+          sx={{
+            "& .MuiPaginationItem-root": {
+              fontWeight: 600,
+            },
+          }}
         />
       </Box>
-
       <PatientModal
         open={modalOpen}
         patient={selectedPatient}
         onClose={() => setModalOpen(false)}
       />
-
       <AuthModal
         open={authModalOpen}
         onClose={() => setAuthModalOpen(false)}
