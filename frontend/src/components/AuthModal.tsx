@@ -9,13 +9,14 @@ export default function AuthModal({
 }: {
   open: boolean;
   onClose: () => void;
+  onSuccess: () => void;
 }) {
   const [isLogin, setIsLogin] = useState(true);
   const [credentials, setCredentials] = useState({
     email: "",
     password: "",
     username: "",
-    password_confirmation: "", // Add this
+    password_confirmation: "",
   });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -27,29 +28,39 @@ export default function AuthModal({
     setError("");
 
     try {
+      if (
+        !isLogin &&
+        credentials.password !== credentials.password_confirmation
+      ) {
+        throw new Error("Passwords do not match");
+      }
+
       const response = isLogin
         ? await authAPI.login({
             email: credentials.email,
             password: credentials.password,
           })
         : await authAPI.register(credentials);
-      console.log(response);
-      // Add null checks
+
       if (!response.data?.token?.token || !response.data?.user?.id) {
-        throw new Error("Invalid authentication response");
+        throw new Error("Authentication failed - invalid response format");
       }
 
       localStorage.setItem("token", response.data.token.token);
       localStorage.setItem("user", JSON.stringify(response.data.user));
-
       login(response.data.token.token, response.data.user);
       onClose();
     } catch (err: any) {
-      const errorMessage =
-        err.response?.data?.message ||
-        err.response?.data?.error ||
-        err.message ||
-        "Authentication failed";
+      let errorMessage = "Authentication failed";
+
+      if (err.message.includes("Passwords do not match")) {
+        errorMessage = err.message;
+      } else if (err.response?.data) {
+        errorMessage = err.response.data.message || err.response.data.error;
+      } else if (err.message) {
+        errorMessage = err.message;
+      }
+
       setError(errorMessage);
     } finally {
       setLoading(false);
@@ -116,6 +127,16 @@ export default function AuthModal({
                 ...credentials,
                 password_confirmation: e.target.value,
               })
+            }
+            error={
+              !isLogin &&
+              credentials.password !== credentials.password_confirmation
+            }
+            helperText={
+              !isLogin &&
+              credentials.password !== credentials.password_confirmation
+                ? "Passwords do not match"
+                : ""
             }
             margin="normal"
             required

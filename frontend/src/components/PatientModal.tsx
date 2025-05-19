@@ -14,6 +14,7 @@ import {
   styled,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
+import useMediaQuery from "@mui/material/useMediaQuery";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { patientAPI } from "../services/api";
 import { type PatientFormValues, type Patient } from "../types/patient";
@@ -21,6 +22,12 @@ import { type PatientFormValues, type Patient } from "../types/patient";
 const bloodTypes = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
 
 const StyledTextField = styled(TextField)(({ theme }) => ({
+  "& .MuiInputBase-input": {
+    fontSize: theme.typography.body2.fontSize,
+    [theme.breakpoints.up("md")]: {
+      fontSize: theme.typography.body1.fontSize,
+    },
+  },
   "& .MuiOutlinedInput-root": {
     borderRadius: theme.shape.borderRadius,
     "& fieldset": {
@@ -42,10 +49,11 @@ export default function PatientModal({
   onClose,
 }: {
   open: boolean;
-  patient?: Patient;
+  patient: Patient | null;
   onClose: () => void;
 }) {
   const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const queryClient = useQueryClient();
   const [formValues, setFormValues] = useState<PatientFormValues>({
     first_name: "",
@@ -117,14 +125,34 @@ export default function PatientModal({
   };
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
+    <Dialog
+      open={open}
+      onClose={onClose}
+      maxWidth="md"
+      fullWidth
+      fullScreen={isMobile}
+      slotProps={{
+        paper: {
+          elevation: 3,
+          sx: {
+            display: "flex",
+            flexDirection: "column",
+            height: isMobile ? "100%" : "max-content",
+            overflow: "auto",
+          },
+        },
+      }}
+    >
       <DialogTitle
         sx={{
           bgcolor: "primary.main",
           color: "primary.contrastText",
-          position: "relative",
-          py: 2,
-          pr: 6,
+          position: "sticky",
+          top: 0,
+          zIndex: 1,
+          py: { xs: 1.5, md: 2 },
+          pr: { xs: 4, md: 6 },
+          flexShrink: 0,
         }}
       >
         {patient ? "Edit Patient" : "New Patient"}
@@ -133,7 +161,8 @@ export default function PatientModal({
           sx={{
             position: "absolute",
             right: theme.spacing(2),
-            top: theme.spacing(2),
+            top: "50%",
+            transform: "translateY(-50%)",
             color: "primary.contrastText",
           }}
         >
@@ -142,10 +171,21 @@ export default function PatientModal({
       </DialogTitle>
 
       <form onSubmit={handleSubmit}>
-        <DialogContent dividers sx={{ p: 3 }}>
-          <Grid container spacing={2}>
+        <DialogContent
+          dividers
+          sx={{
+            p: 3,
+            overflowY: "auto",
+            height: isMobile ? "calc(100vh - (76px + 56px))" : "max-content",
+            flex: 1,
+            "&&": {
+              padding: theme.spacing(3),
+            },
+          }}
+        >
+          <Grid container spacing={{ xs: 1, md: 2 }}>
             {/* Name Row */}
-            <Grid size={{ xs: 12, md: 6 }}>
+            <Grid size={6}>
               <StyledTextField
                 fullWidth
                 label="First Name"
@@ -156,7 +196,7 @@ export default function PatientModal({
                 required
               />
             </Grid>
-            <Grid size={{ xs: 12, md: 6 }}>
+            <Grid size={6}>
               <StyledTextField
                 fullWidth
                 label="Last Name"
@@ -229,7 +269,7 @@ export default function PatientModal({
                 required
               />
             </Grid>
-            <Grid size={{ xs: 12, md: 4 }}>
+            <Grid size={{ xs: 6, md: 4 }}>
               <StyledTextField
                 select
                 fullWidth
@@ -247,7 +287,7 @@ export default function PatientModal({
                 <MenuItem value="other">Other</MenuItem>
               </StyledTextField>
             </Grid>
-            <Grid size={{ xs: 12, md: 4 }}>
+            <Grid size={{ xs: 6, md: 4 }}>
               <StyledTextField
                 select
                 fullWidth
@@ -269,7 +309,7 @@ export default function PatientModal({
             </Grid>
 
             {/* Medical Information */}
-            <Grid size={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <StyledTextField
                 fullWidth
                 multiline
@@ -286,7 +326,7 @@ export default function PatientModal({
             </Grid>
 
             {/* Allergies */}
-            <Grid size={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <StyledTextField
                 fullWidth
                 multiline
@@ -303,9 +343,17 @@ export default function PatientModal({
 
         <DialogActions
           sx={{
-            px: 3,
+            px: { xs: 2, md: 3 },
             py: 2,
             borderTop: `1px solid ${theme.palette.divider}`,
+            position: "sticky",
+            bottom: 0,
+            bgcolor: "background.paper",
+            zIndex: 1,
+            flexShrink: 0,
+            display: "flex",
+            flexDirection: { xs: "row", md: "row" },
+            gap: { xs: 1, md: 2 },
           }}
         >
           {patient && (
@@ -314,8 +362,17 @@ export default function PatientModal({
               color="error"
               variant="outlined"
               disabled={deleteMutation.isLoading}
+              fullWidth={isMobile}
+              sx={{
+                order: { xs: 2, md: 0 },
+                minWidth: 120,
+                "&:hover": {
+                  backgroundColor: theme.palette.error.light,
+                  color: theme.palette.error.contrastText,
+                },
+              }}
             >
-              Delete Patient
+              {deleteMutation.isLoading ? "Deleting..." : "Delete Patient"}
             </Button>
           )}
 
@@ -324,9 +381,22 @@ export default function PatientModal({
             variant="contained"
             color="primary"
             disabled={mutation.isLoading || deleteMutation.isLoading}
-            sx={{ px: 4, fontWeight: 600 }}
+            sx={{
+              px: 4,
+              fontWeight: 600,
+              flexShrink: 0,
+              "&:hover": {
+                backgroundColor: theme.palette.primary.dark,
+              },
+            }}
           >
-            {patient ? "Save Changes" : "Create Patient"}
+            {mutation.isLoading
+              ? patient
+                ? "Saving..."
+                : "Creating..."
+              : patient
+              ? "Save Changes"
+              : "Create Patient"}
           </Button>
         </DialogActions>
       </form>

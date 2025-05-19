@@ -1,5 +1,5 @@
 // HomePage.tsx
-import { useState, useRef, createRef } from "react";
+import { useState, createRef, useEffect } from "react";
 import {
   Grid,
   TextField,
@@ -7,38 +7,72 @@ import {
   Button,
   Box,
   Pagination,
-  useMediaQuery,
   useTheme,
+  IconButton,
+  Avatar,
+  Menu,
+  MenuItem,
 } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
 import { TransitionGroup, CSSTransition } from "react-transition-group";
+import GitHubIcon from "@mui/icons-material/GitHub";
+import ApiIcon from "@mui/icons-material/Api";
 import PatientCard from "../components/PatientCard";
 import PatientModal from "../components/PatientModal";
 import AuthModal from "../components/AuthModal";
 import api from "../services/api";
 import { useAuth } from "../contexts/AuthContext";
+import FavoriteIcon from "@mui/icons-material/Favorite";
 import { type Patient } from "../types/patient";
 
 export default function HomePage() {
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, logout } = useAuth();
+  const [user, setUser] = useState<{
+    id: number;
+    username: string;
+    email: string;
+  } | null>(null);
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [page, setPage] = useState(1);
 
-  const {
-    data: patientsData = { data: [], total: 0, lastPage: 1 },
-    isLoading,
-  } = useQuery({
-    queryKey: ["patients", searchTerm, page],
-    queryFn: () =>
-      api
-        .get("/patients", { params: { q: searchTerm, page } })
-        .then((res) => res.data),
-  });
+  useEffect(() => {
+    if (isAuthenticated) {
+      const userData = localStorage.getItem("user");
+      if (userData) {
+        setUser(JSON.parse(userData));
+      }
+    } else {
+      setUser(null);
+    }
+  }, [isAuthenticated]);
+
+  const { data: patientsData = { data: [], total: 0, lastPage: 1 } } = useQuery(
+    {
+      queryKey: ["patients", searchTerm, page],
+      queryFn: () =>
+        api
+          .get("/patients", { params: { q: searchTerm, page } })
+          .then((res) => res.data),
+    }
+  );
+
+  const handleAvatarClick = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleLogout = () => {
+    logout();
+    handleClose();
+  };
 
   const handlePageChange = (
     _event: React.ChangeEvent<unknown>,
@@ -49,6 +83,56 @@ export default function HomePage() {
 
   return (
     <>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          mb: 4,
+        }}
+      >
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          <IconButton
+            href="https://github.com/yourusername/your-repo"
+            target="_blank"
+          >
+            <GitHubIcon />
+            Github
+          </IconButton>
+        </Box>
+
+        {isAuthenticated && user && (
+          <Box>
+            <IconButton onClick={handleAvatarClick}>
+              <Avatar sx={{ bgcolor: theme.palette.secondary.main }}>
+                {user.username.charAt(0).toUpperCase()}
+              </Avatar>
+            </IconButton>
+            <Menu
+              anchorEl={anchorEl}
+              open={Boolean(anchorEl)}
+              onClose={handleClose}
+              anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+              transformOrigin={{ vertical: "top", horizontal: "right" }}
+            >
+              <MenuItem dense>
+                <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                  {user.username}
+                </Typography>
+              </MenuItem>
+              <MenuItem dense>
+                <Typography variant="body2" color="text.secondary">
+                  {user.email}
+                </Typography>
+              </MenuItem>
+              <MenuItem onClick={handleLogout}>
+                <Typography variant="body2">Logout</Typography>
+              </MenuItem>
+            </Menu>
+          </Box>
+        )}
+      </Box>
+
       <Typography
         variant="h3"
         gutterBottom

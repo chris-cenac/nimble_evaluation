@@ -1,0 +1,43 @@
+{
+  "name": "Axonity Health",
+  "short_name": "Ax Health",
+  "start_url": "/",
+  "id": "/",
+  "screenshots": [
+    {
+      "src": "screenshots/mobile-screenshot.png",
+      "sizes": "375x812",
+      "type": "image/png",
+      " form_factor": "narrow"
+    },
+    {
+      "src": "screenshots/desktop-screenshot.png",
+      "sizes": "1920x1080",
+      "type": "image/png",
+      "form_factor": "wide"
+    }
+  ],
+  "icons": [
+    {
+      "src": "/pwa-144x144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/pwa-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "theme_color": "#3F51B5",
+  "background_color": "#FFFFFF",
+  "display": "standalone"
+}

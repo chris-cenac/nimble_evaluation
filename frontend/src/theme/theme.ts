@@ -4,39 +4,38 @@ import { createTheme } from "@mui/material/styles";
 const theme = createTheme({
   palette: {
     primary: {
-      main: "#153554", // Navy blue - primary brand color
-      dark: "#0f263a",
-      light: "#1d4a7e",
-      contrastText: "#F1F1EE",
+      main: "#3F51B5", // --primary-100
+      light: "#757de8", // --primary-200
+      contrastText: "#FFFFFF",
     },
     secondary: {
-      main: "#3FC996", // Teal green - secondary accent
-      dark: "#2da374",
-      light: "#5cd6a9",
-      contrastText: "#153554",
+      main: "#2196F3", // --accent-100
+      dark: "#003f8f", // --accent-200
+      contrastText: "#FFFFFF",
     },
     error: {
-      main: "#e57373", // Keeping standard error red for familiarity
+      main: "#e57373",
     },
     warning: {
-      main: "#ffb74d", // Standard warning orange
+      main: "#ffb74d",
     },
     success: {
-      main: "#3FC996", // Reusing the teal for success
+      main: "#3FC996",
     },
     info: {
-      main: "#149DE4", // Bright blue for info
+      main: "#757de8", // Using primary-200
     },
     background: {
-      default: "#F1F1EE", // Off-white background
-      paper: "#ffffff", // Pure white for surfaces
+      default: "#FFFFFF", // --bg-100
+      paper: "#f5f5f5", // --bg-200
     },
     text: {
-      primary: "#153554", // Navy for primary text
-      secondary: "#62C5D0", // Light blue for secondary
+      primary: "#333333", // --text-100
+      secondary: "#5c5c5c", // --text-200
     },
     action: {
-      active: "#3FC996", // Teal for active states
+      active: "#3F51B5", // Using primary-100
+      hover: "#f5f5f5", // Using bg-200
     },
   },
   typography: {
@@ -52,11 +51,13 @@ const theme = createTheme({
     ].join(","),
     h1: {
       fontWeight: 700,
-      color: "#153554",
+      color: "#333333",
+      letterSpacing: "-0.02em",
     },
     h2: {
       fontWeight: 600,
-      color: "#149DE4",
+      color: "#3F51B5", // Using primary-100
+      letterSpacing: "-0.01em",
     },
     button: {
       textTransform: "none",
@@ -69,13 +70,21 @@ const theme = createTheme({
         root: {
           borderRadius: "8px",
           padding: "8px 16px",
+          transition: "all 0.2s ease-in-out",
+        },
+        contained: {
+          boxShadow: "0px 2px 4px rgba(63, 81, 181, 0.15)",
+          "&:hover": {
+            boxShadow: "0px 4px 8px rgba(63, 81, 181, 0.25)",
+          },
         },
       },
     },
     MuiAppBar: {
       styleOverrides: {
         root: {
-          backgroundColor: "#153554",
+          backgroundColor: "#3F51B5", // --primary-100
+          boxShadow: "0px 2px 8px rgba(51, 51, 51, 0.1)",
         },
       },
     },
@@ -83,7 +92,28 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           borderRadius: "12px",
-          boxShadow: "0px 4px 12px rgba(21, 53, 84, 0.1)",
+          boxShadow: "0px 4px 12px rgba(51, 51, 51, 0.1)",
+          transition: "transform 0.2s ease-in-out",
+          "&:hover": {
+            transform: "translateY(-2px)",
+          },
+        },
+      },
+    },
+    MuiDivider: {
+      styleOverrides: {
+        root: {
+          borderColor: "#cccccc", // --bg-300
+          margin: "16px 0",
+        },
+      },
+    },
+    MuiTextField: {
+      styleOverrides: {
+        root: {
+          "& .MuiOutlinedInput-root": {
+            borderRadius: "8px",
+          },
         },
       },
     },
