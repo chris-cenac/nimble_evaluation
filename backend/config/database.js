@@ -69,15 +69,21 @@ module.exports = {
   | npm i --save pg
   |
   */
+  // config/database.js
   pg: {
     client: "pg",
     connection: {
-      host: Env.get("DB_HOST", "localhost"),
-      port: Env.get("DB_PORT", ""),
-      user: Env.get("DB_USER", "root"),
-      password: Env.get("DB_PASSWORD", ""),
-      database: Env.get("DB_DATABASE", "adonis"),
+      host: process.env.DB_HOST,
+      port: process.env.DB_PORT,
+      user: process.env.DB_USER,
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_DATABASE,
+      ssl: process.env.NODE_ENV === "production" ? true : false,
     },
-    debug: Env.get("DB_DEBUG", false),
+    pool: {
+      min: 2,
+      max: 10,
+      acquireTimeoutMillis: 60000,
+    },
   },
 };

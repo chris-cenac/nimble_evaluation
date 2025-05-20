@@ -25,6 +25,8 @@
     "@adonisjs/ignitor": "^2.0.8",
     "@adonisjs/lucid": "^6.3.0",
     "luxon": "^3.6.1",
+    "marked": "^15.0.12",
+    "pg": "^8.16.0",
     "sqlite3": "^5.1.7"
   },
   "autoload": {

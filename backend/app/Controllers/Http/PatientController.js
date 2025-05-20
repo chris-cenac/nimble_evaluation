@@ -4,41 +4,54 @@ const Patient = use("App/Models/Patient");
 
 class PatientController {
   async index({ request, response }) {
-    const searchTerm = request.input("q");
+    const searchTerm = request.input("q", "").trim();
     const page = request.input("page", 1);
     const perPage = request.input("perPage", 10);
-
     const query = Patient.query();
 
     if (searchTerm) {
-      const searchTerms = searchTerm.toLowerCase().split(" ");
+      // split on spaces for multi-term search
+      const terms = searchTerm.split(/\s+/);
 
       query.where((builder) => {
-        searchTerms.forEach((term) => {
-          // Try to parse date formats
-          const dateFormats = [
-            /\d{4}-\d{2}-\d{2}/, // YYYY-MM-DD
-            /\d{2}\/\d{2}\/\d{4}/, // MM/DD/YYYY
-            /\d{4}\d{2}\d{2}/, // YYYYMMDD
-          ];
-
-          const isDate = dateFormats.some((format) => format.test(term));
-
-          if (isDate) {
-            // Convert term to YYYY-MM-DD format
-            const formattedDate = this.parseDate(term);
-            if (formattedDate) {
-              builder.orWhere("date_of_birth", formattedDate);
-            }
-          } else {
-            // Text search across multiple fields
-            builder
-              .orWhereRaw("LOWER(first_name) LIKE ?", [`%${term}%`])
-              .orWhereRaw("LOWER(last_name) LIKE ?", [`%${term}%`])
-              .orWhereRaw("LOWER(medical_history) LIKE ?", [`%${term}%`])
-              .orWhereRaw("LOWER(allergies) LIKE ?", [`%${term}%`])
-              .orWhereRaw("LOWER(blood_type) LIKE ?", [`%${term}%`]);
+        terms.forEach((term) => {
+          // 1) Full-date match?
+          const fullDate = this.parseDate(term);
+          if (fullDate) {
+            return builder.orWhere("date_of_birth", fullDate);
           }
+
+          // 2) Year-only? (4 digits)
+          if (/^\d{4}$/.test(term)) {
+            return builder.orWhereRaw("EXTRACT(YEAR FROM date_of_birth) = ?", [
+              term,
+            ]);
+          }
+
+          // 3) Numeric month or day?
+          if (/^\d{1,2}$/.test(term)) {
+            const num = parseInt(term, 10);
+            // month match
+            if (num >= 1 && num <= 12) {
+              builder.orWhereRaw("EXTRACT(MONTH FROM date_of_birth) = ?", [
+                num,
+              ]);
+            }
+            // day match
+            if (num >= 1 && num <= 31) {
+              builder.orWhereRaw("EXTRACT(DAY FROM date_of_birth) = ?", [num]);
+            }
+            return;
+          }
+
+          // 4) Fallback: text fields (ILIKE for PG)
+          builder.orWhere((qb) => {
+            qb.orWhere("first_name", "ILIKE", `%${term}%`)
+              .orWhere("last_name", "ILIKE", `%${term}%`)
+              .orWhere("medical_history", "ILIKE", `%${term}%`)
+              .orWhere("allergies", "ILIKE", `%${term}%`)
+              .orWhere("blood_type", "ILIKE", `%${term}%`);
+          });
         });
       });
     }
@@ -47,7 +60,6 @@ class PatientController {
     return response.json(patients);
   }
 
-  // Helper function to parse different date formats
   parseDate(term) {
     try {
       // Try different date formats

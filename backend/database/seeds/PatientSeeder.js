@@ -6,7 +6,7 @@ const { faker } = require("@faker-js/faker");
 class PatientSeeder {
   async run() {
     const patients = [];
-    const GENDERS = ["male", "female", "other"]; // Match your DB enum
+    const GENDERS = ["male", "female", "other"];
 
     // Generate 50 sample patients
     for (let i = 0; i < 50; i++) {
@@ -24,14 +24,9 @@ class PatientSeeder {
       patients.push({
         first_name: firstName,
         last_name: lastName,
-        date_of_birth: birthDate.toISOString().split("T")[0], // YYYY-MM-DD
+        date_of_birth: birthDate.toISOString().split("T")[0],
         gender: gender,
         email: faker.internet.email({ firstName, lastName }),
-        phone: faker.phone.number(),
-        address: faker.location.streetAddress(),
-        city: faker.location.city(),
-        state: faker.location.state({ abbreviated: true }),
-        zip_code: faker.location.zipCode(),
         blood_type: faker.helpers.arrayElement([
           "A+",
           "A-",
@@ -44,7 +39,10 @@ class PatientSeeder {
         ]),
         height: faker.number.int({ min: 150, max: 200 }),
         weight: faker.number.int({ min: 45, max: 120 }),
-        medical_history: faker.lorem.paragraph(),
+        medical_history: faker.lorem.paragraphs(
+          faker.number.int({ min: 1, max: 3 }),
+          "\n\n"
+        ),
         allergies: faker.helpers
           .arrayElements(
             ["Penicillin", "Pollen", "Dust", "Shellfish", "Latex"],

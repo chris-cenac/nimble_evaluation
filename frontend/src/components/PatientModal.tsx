@@ -123,6 +123,9 @@ export default function PatientModal({
       deleteMutation.mutate();
     }
   };
+  const formatDateForInput = (dateString: string) => {
+    return dateString.split(" ")[0];
+  };
 
   return (
     <Dialog
@@ -259,7 +262,7 @@ export default function PatientModal({
                 type="date"
                 label="Date of Birth"
                 InputLabelProps={{ shrink: true }}
-                value={formValues.date_of_birth}
+                value={formatDateForInput(formValues.date_of_birth)}
                 onChange={(e) =>
                   setFormValues({
                     ...formValues,

@@ -6,19 +6,12 @@ const Schema = use("Schema");
 class PatientsSchema extends Schema {
   up() {
     this.create("patients", (table) => {
-      table.increments("id").primary();
+      table.increments("id").primary().notNullable().unsigned();
       table.string("first_name", 80).notNullable();
       table.string("last_name", 80).notNullable();
       table.date("date_of_birth").notNullable();
       table.enum("gender", ["male", "female", "other"]).notNullable();
-
-      // Add these new columns
       table.string("email", 254);
-      table.string("phone", 20);
-      table.string("address", 255);
-      table.string("city", 80);
-      table.string("state", 2); // Assuming 2-letter state codes
-      table.string("zip_code", 10);
       table.enum("blood_type", [
         "A+",
         "A-",

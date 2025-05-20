@@ -91,16 +91,21 @@ export default function HomePage() {
           mb: 4,
         }}
       >
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-          <IconButton
-            href="https://github.com/yourusername/your-repo"
-            target="_blank"
-          >
-            <GitHubIcon />
-            Github
-          </IconButton>
-        </Box>
+        {/* Left side - attribution */}
+        <Typography
+          variant="body2"
+          sx={{
+            fontWeight: 500,
+            display: "flex",
+            alignItems: "center",
+            gap: 1,
+          }}
+        >
+          Made with <FavoriteIcon sx={{ fontSize: 16, color: "error.main" }} />{" "}
+          by Chris Cenac
+        </Typography>
 
+        {/* Right side - avatar + menu */}
         {isAuthenticated && user && (
           <Box>
             <IconButton onClick={handleAvatarClick}>
@@ -125,8 +130,26 @@ export default function HomePage() {
                   {user.email}
                 </Typography>
               </MenuItem>
+              <MenuItem
+                component="a"
+                href="https://github.com/chris-cenac/nimble_evaluation"
+                target="_blank"
+              >
+                <GitHubIcon sx={{ mr: 1 }} fontSize="small" />
+                GitHub
+              </MenuItem>
+              <MenuItem
+                component="a"
+                href="http://0.0.0.0:8080/docs"
+                target="_blank"
+              >
+                <ApiIcon sx={{ mr: 1 }} fontSize="small" />
+                API Docs
+              </MenuItem>
               <MenuItem onClick={handleLogout}>
-                <Typography variant="body2">Logout</Typography>
+                <Typography variant="body2" color="error">
+                  Logout
+                </Typography>
               </MenuItem>
             </Menu>
           </Box>
