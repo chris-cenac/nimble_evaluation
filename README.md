@@ -1,4 +1,4 @@
-````markdown
+
 # 🏥 Patient Records Management System – Nimble Evaluation Submission
 
 ## 📄 Overview
@@ -26,7 +26,7 @@ This is a **monorepo** structured into two main folders:
 ├── backend   # AdonisJS REST API
 └── frontend  # React + Vite PWA
 ```
-````
+
 
 ---
 
