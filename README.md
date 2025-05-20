@@ -185,6 +185,3 @@ This project fulfills the following requirements as outlined in Nimble’s assig
 
 Please check your email for database credentials and `.env` configuration.
 
-```
-
-```
