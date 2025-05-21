@@ -1,5 +1,4 @@
-backend 
-cloudbuild.yaml
+cloudbuild.yaml:
 
 steps:
 - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
