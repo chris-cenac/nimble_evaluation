@@ -10,6 +10,6 @@ steps:
     args:
       [
         "-c",
-        "gcloud config set app/cloud_build_timeout 3600 && gcloud app deploy dev_app.yaml",
+        "gcloud config set app/cloud_build_timeout 3600 && gcloud app deploy frontend/dev_app.yaml",
       ]
 timeout: "3600s"
