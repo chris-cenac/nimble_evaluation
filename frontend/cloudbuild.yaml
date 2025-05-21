@@ -2,14 +2,16 @@ steps:
   - name: node:20.19.0
     entrypoint: npm
     args: ["install"]
+
   - name: node:20.19.0
     entrypoint: npm
     args: ["run", "build"]
-  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
-    entrypoint: "bash"
+
+  - name: gcr.io/google.com/cloudsdktool/cloud-sdk
+    entrypoint: bash
     args:
-      [
-        "-c",
-        "gcloud config set app/cloud_build_timeout 3600 && gcloud app deploy frontend/dev_app.yaml",
-      ]
+      - -c
+      - |
+        gcloud config set app/cloud_build_timeout 3600
+        gcloud app deploy frontend/dev_app.yaml
 timeout: "3600s"
