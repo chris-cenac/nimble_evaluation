@@ -1,0 +1,35 @@
+Frontend
+cloudbuild.yaml:
+
+steps:
+- name: node:24.0.1
+  entrypoint: npm
+  args: ['install']
+- name: node:24.0.1
+  entrypoint: npm
+  args: ['run', 'build']
+- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+  entrypoint: 'bash'
+  args: ['-c', 'gcloud config set app/cloud_build_timeout 3600 && gcloud app deploy dev_app.yaml']
+timeout: '3600s'
+options:
+  machineType: 'E2_HIGHCPU_32'
+
+
+dev.yaml file:
+
+runtime: nodejs20
+handlers:
+ - url: /pageIcon.png
+    static_files: dist/pageIcon.png
+    upload: dist/pageIcon.png
+ - url: /(.*\..+)$
+    static_files: dist/\1
+    upload: dist/.*\..+$
+ - url: /.*
+    static_files: dist/index.html
+    upload: dist/index.html
+    secure: always
+    redirect_http_response_code: 301
+env_variables:
+  VITE_API_URL=http://localhost:8080/api
