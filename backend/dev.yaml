@@ -1,21 +1,24 @@
 runtime: nodejs20
+
 handlers:
   - url: /.*
     script: auto
     secure: always
     redirect_http_response_code: 301
+
 network:
   session_affinity: true
-env_variables: HOST=localhost
-  PORT=8080
-  NODE_ENV=development
-  APP_KEY=ySIujwLXB71Wdrb2b5v00PMLAktEjusJ
-  APP_NAME=Ax Health
-  APP_URL=http://${HOST}:${PORT}
 
-  DB_CONNECTION=pg
-  DB_HOST=35.223.62.122
-  DB_PORT=5432
-  DB_USER=postgres
-  DB_PASSWORD=c8rmJfdjvsdx
-  DB_DATABASE=adonis_prod
+env_variables:
+  HOST: "localhost"
+  PORT: "8080"
+  NODE_ENV: "development"
+  APP_KEY: "ySIujwLXB71Wdrb2b5v00PMLAktEjusJ"
+  APP_NAME: "Ax Health"
+  APP_URL: "http://${HOST}:${PORT}"
+  DB_CONNECTION: "pg"
+  DB_HOST: "35.223.62.122"
+  DB_PORT: "5432"
+  DB_USER: "postgres"
+  DB_PASSWORD: "c8rmJfdjvsdx"
+  DB_DATABASE: "adonis_prod"

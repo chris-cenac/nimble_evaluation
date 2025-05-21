@@ -1,15 +1,19 @@
 runtime: nodejs20
+
 handlers:
- - url: /pageIcon.png
+  - url: /pageIcon.png
     static_files: dist/pageIcon.png
     upload: dist/pageIcon.png
- - url: /(.*\..+)$
+
+  - url: /(.*\..+)$
     static_files: dist/\1
     upload: dist/.*\..+$
- - url: /.*
+
+  - url: /.*
     static_files: dist/index.html
     upload: dist/index.html
     secure: always
     redirect_http_response_code: 301
+
 env_variables:
-  VITE_API_URL=http://localhost:8080/api
+  VITE_API_URL: "http://localhost:8080/api"
