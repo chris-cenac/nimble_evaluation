@@ -13,5 +13,3 @@ steps:
         "gcloud config set app/cloud_build_timeout 3600 && gcloud app deploy dev_app.yaml",
       ]
 timeout: "3600s"
-options:
-  machineType: "E2_HIGHCPU_32"
